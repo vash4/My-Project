@@ -1,0 +1,88 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    social:["linkedin","menu"]
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(openintro)
+library(tidyverse)
+
+```
+# upload data 
+```{r}
+df <- read.csv(file.choose(),header = T)
+
+# show the data in structure form
+str(df) 
+```
+# Show data in tabular form
+```{r}
+View(df)
+```
+# show 5 row and in data
+```{r}
+head(df)
+```
+# it show data mean,median,max,quartile
+```{r}
+summary(df)
+```
+#data cleaning
+```{r}
+df_clean <-distinct(df)
+df_clean
+```
+#it show the dimension of data 10000 rows and 14  columns
+```{r}
+dim(df)
+```
+# Data partition training & testing
+```{r}
+set.seed(1234)
+par <-(sample(2,nrow(df),replace = TRUE,prob = c(0.7,0.3)))
+training <-df[par==1,]
+testing <-df[par==2,]
+cbind(summary(training$Air.temperature..K.))
+cbind(summary(testing$Rotational.speed..rpm.))
+```
+#Multiple Linear regression
+```{r}
+reg <- lm(Rotational.speed..rpm.~Air.temperature..K.,data=df)
+reg
+```
+```{r}
+summary(reg)
+```
+# Interactive data visulazation
+```{r}
+plot(Rotational.speed..rpm.~Air.temperature..K.,training)
+plot(df$Air.temperature..K.,df$Rotational.speed..rpm.)
+plot(Air.temperature..K.~Rotational.speed..rpm.,data = df)
+```
+# preduct new data
+```{r}
+nd =data.frame(Rotational.speed..rpm.=c(211.0,321,322.0,370.1),Air.temperature..K.=c(1551,1762,1001,1348))
+nd
+```
+```{r}
+predict(reg,newdata = nd)
+```
+# reg diagostic
+```{r}
+par(mfrow=c(2,2),
+    plot(reg))
+```
+# Confusion matrix
+```{r}
+p1 <- predict(reg,testing)
+tab1 <- table(p1,testing$Air.temperature..K.)
+tab1
+```

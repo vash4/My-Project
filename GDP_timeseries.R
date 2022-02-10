@@ -1,0 +1,36 @@
+library(dplyr)
+library(ggplot2)
+library(forecast)
+library(tseries)
+#library(lubridate)
+#library(quantmod)
+#library(PerformaneAnalytics)
+
+getwd()
+setwd("C:\\Users\\hp\\OneDrive\\Desktop")
+df <-read.csv("Book1.csv")
+head(df)
+str(df)
+View(df)
+summary(df)
+plot(df)
+
+df_time =ts(df$GDP,start = min(df$Date),end = max(df$Date),frequency = 4)
+df_time
+class(df_time)
+frequency(df)
+#log transform
+df<-log(df)
+plot(df,type='o')
+plot(df_time)
+acf(df_time)
+pacf(df_time)
+df_time=auto.arima(df_time,ic="aic",trace = TRUE)
+df_time
+acf(ts(df_time$residuals))
+pacf(ts(df_time$residuals))
+df_time_forecast =forecast(df_time,level=c(90))
+df_time_forecast
+plot(df_time_forecast)
+Box.test(df_time_forecast$residuals,lag = 4,type ="Ljung-Box")
+Box.test(df_time_forecast$residuals,lag = 40,type ="Ljung-Box")
